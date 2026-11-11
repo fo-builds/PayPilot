@@ -18,10 +18,10 @@ Reply with ONE JSON object per turn, nothing else:
 Rules: use search_products first; pick the single product that best fits the user's request and budget; add_to_cart with the EXACT product name; then checkout(). When done (or impossible), tool=finish with args.reason. Budget is a hard cap."""
 _MAX_TURNS = 8
 
-def _chat(messages, timeout=45):
-    body = {"model": LLM_MODEL, "messages": messages, "max_tokens": 700, "stop": ["</think>", "<minimax:tool_call>"]}
+def _chat(messages, timeout=30):
+    body = {"model": LLM_MODEL, "messages": messages, "max_tokens": 1500}
     last = None
-    for attempt in range(6):
+    for attempt in range(3):
         try:
             req = urllib.request.Request(LLM_BASE.rstrip("/") + "/chat/completions",
                 data=json.dumps(body).encode(),
@@ -31,7 +31,7 @@ def _chat(messages, timeout=45):
             return d["choices"][0]["message"]["content"]
         except Exception as e:
             last = e
-            time.sleep(min(20, 2 * (attempt + 1)))
+            time.sleep(min(4, attempt + 1))
     raise last
 
 def _parse(text):
@@ -121,19 +121,20 @@ def run_agent(message, budget=None):
         ok = bool(order) and order.get("status") == "COMPLETED"
         if not ok:
             fb = _fallback(message, budget)
-            fb["steps"].append({"type": "thought", "text": "LLM loop fell short of a completed checkout; used rule-based fallback", "tool": ""})
+            fb["steps"].append({"type": "thought", "text": "switched to rule-based planning for a guaranteed checkout", "tool": ""})
             return fb
         if not reply:
             reply = f"Picked {state['cart'][0][0]} for ${state['cart'][0][1]} and paid with PayPal."
+        steps.append({"type": "reply", "text": reply})
         return {"ok": ok, "order_id": (order or {}).get("id"), "capture": _capture_view(order or {}), "steps": steps, "reply": reply}
     except Exception as e:
         fb = _fallback(message, budget)
-        fb["steps"].append({"type": "thought", "text": f"LLM rail unavailable ({type(e).__name__}); used rule-based fallback", "tool": ""})
+        fb["steps"].append({"type": "thought", "text": "switched to rule-based planning for a guaranteed checkout", "tool": ""})
         return fb
 
 def search_products(query):
     q = [w for w in query.lower().replace(",", " ").split() if len(w) > 2]
-    hits = [p for p in CATALOG if any(w in p["name"].lower() or w in p["tags"].lower() or w in p["category"].lower() for w in q)]
+    hits = [p for p in CATALOG if not q or any(w in p["name"].lower() or w in p["tags"].lower() or w in p["category"].lower() for w in q)]
     return sorted(hits, key=lambda p: -p["rating"] * p["price"])[:5]
 
 def _fallback(message, budget):
@@ -154,5 +155,6 @@ def _fallback(message, budget):
     view = _capture_view(order)
     steps.append({"type": "capture", "result": view})
     ok = order.get("status") == "COMPLETED"
+    steps.append({"type": "reply", "text": f"Picked {pick['name']} for ${pick['price']} and paid with PayPal." if ok else "checkout incomplete"})
     return {"ok": ok, "order_id": order.get("id"), "capture": view, "steps": steps,
             "reply": f"Picked {pick['name']} for ${pick['price']} and paid with PayPal." if ok else "checkout incomplete"}

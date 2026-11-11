@@ -31,7 +31,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(404, {"error": "not found"})
         n = int(self.headers.get("Content-Length") or 0)
         req = json.loads(self.rfile.read(n) or b"{}")
-        query = req.get("query") or ""
+        query = req.get("message") or req.get("query") or ""
         budget = req.get("budget")
         try:
             result = run_agent(query, budget)
