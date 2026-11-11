@@ -58,7 +58,8 @@
 <script>
 const log = document.getElementById('log');
 function add(cls, text){ const d=document.createElement('div'); d.className='bubble '+cls; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
-fetch('/api/catalog').then(r=>r.json()).then(rows=>{
+fetch('/api/catalog').then(r=>r.json()).then(data=>{
+  const rows = Array.isArray(data) ? data : (data.products || []);
   document.getElementById('catalog').innerHTML = rows.map(p=>
     `<div class="prod"><div class="name">${p.name}</div><div class="meta">${p.category} · ★${p.rating} (${p.reviews})</div><div class="meta">${p.description}</div><div class="price">$${p.price.toFixed(2)}</div></div>`).join('');
 });
