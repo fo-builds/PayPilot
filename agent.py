@@ -1,6 +1,6 @@
 """PayPilot shopping agent: search -> pick -> pay. Autonomous capture proven."""
-from . import paypal_client as pp
-from .catalog import CATALOG
+from paypal_client import pp
+from catalog import CATALOG
 
 def search_products(query):
     q = query.lower().split()

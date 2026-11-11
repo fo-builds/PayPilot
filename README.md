@@ -46,7 +46,7 @@ pay → receipt — on real PayPal rails (sandbox), with an auditable trail
 ```bash
 export PAYPAL_CLIENT_ID=...   # sandbox app
 export PAYPAL_CLIENT_SECRET=...
-python3 -m app.server         # http://localhost:8080
+python3 server.py         # http://localhost:8080
 python3 e2e_agent.py          # full agent loop end to end
 ```
 

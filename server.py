@@ -2,8 +2,8 @@
 import json, threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
-from .agent import run_agent
-from .catalog import CATALOG
+from agent import run_agent
+from catalog import CATALOG
 
 class Handler(BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json"):
@@ -21,7 +21,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/catalog":
             return self._send(200, {"products": CATALOG})
         if path == "/" or path == "/index.html":
-            with open("public/index.html", "rb") as f:
+            with open("index.html", "rb") as f:
                 return self._send(200, f.read(), "text/html")
         return self._send(404, {"error": "not found"})
 
