@@ -1,0 +1,14 @@
+{
+  "name": "paypilot",
+  "version": "1.0.0",
+  "description": "PayPilot - an AI shopping agent that browses, decides, and completes real PayPal sandbox checkouts end to end",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test:e2e": "node scripts/e2e.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "license": "MIT"
+}
