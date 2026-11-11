@@ -1,5 +1,5 @@
 """PayPilot shopping agent: search -> pick -> pay. Autonomous capture proven."""
-from paypal_client import pp
+import paypal_client as pp
 from catalog import CATALOG
 
 def search_products(query):
