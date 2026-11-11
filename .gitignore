@@ -3,3 +3,5 @@ node_modules/
 __pycache__/
 *.pyc
 accounts-backup/
+pat.json
+paypilot.tgz
