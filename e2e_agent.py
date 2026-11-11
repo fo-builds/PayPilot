@@ -1,5 +1,5 @@
 import json
-from app.agent import run_agent
+from agent import run_agent
 r = run_agent("mechanical keyboard", budget=100)
 print(json.dumps(r, indent=2))
 assert r["ok"], "agent loop failed"
