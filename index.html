@@ -72,13 +72,14 @@ document.getElementById('f').addEventListener('submit', async (e)=>{
     const r=await fetch('/api/agent/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
     const d=await r.json();
     if(d.error){ add('step','error: '+d.error); }
-    (d.steps||[]).forEach(s=>{
+    for (const s of (d.steps||[])){
       if(s.type==='thought') add('step','thinking: '+(s.text||'')+'\n→ tool '+s.tool+' '+JSON.stringify(s.args||{}));
       else if(s.type==='action') add('step','action: '+s.tool+' '+JSON.stringify(s.args||{}));
       else if(s.type==='tool_result') add('step','← '+JSON.stringify(s.result).slice(0,500));
       else if(s.type==='reply') add('agent', s.text);
       else if(s.type==='capture'){ const c=s.result||{}; add(c.status==='COMPLETED'?'paid':'step', c.status==='COMPLETED' ? ('Payment completed: '+c.order_id+' · '+c.currency+' '+c.amount+' · capture '+c.capture_id) : ('capture: '+JSON.stringify(c).slice(0,400))); }
-    });
+      await new Promise(r=>setTimeout(r,450));
+    }
   }catch(err){ add('step','error: '+err.message); }
   go.disabled=false; go.textContent='Send';
 });
